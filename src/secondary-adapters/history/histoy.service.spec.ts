@@ -20,10 +20,9 @@ describe('History', () => {
     expect(service).toBeDefined();
   });
 
-  it('should resolve the correct address', async () => {
+  it('should resolve the correct address 2', async () => {
     const address = await service.getLastHistoryEvents('0x2655aCd028268B65A6ED68376da477Edc9431459');
 
     expect(address).toBeDefined();
   }, 10000);
-
 });

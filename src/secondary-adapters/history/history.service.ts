@@ -11,35 +11,96 @@ export class HistoryService {
   ) {
   }
 
+  // async getLastHistoryEvents(address: string): Promise<TransactionData | null> {
+  //   try {
+  //     const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
+  //     const promises = chains.map(async (chainID) => {
+  //       const data = await this.httpService.axiosRef.get<TransactionList>(`${process.env.transaction_history_url}/${chainID}/${address}?limit=1000`)
+  //       const txs = data.data.items;
+  //       return {items: txs, chainID: chainID} as TransactionListWithChainID;
+  //     });
+  //     const data = await Promise.all(promises);
+  //
+  //     const latestOutboundTransaction = findLatestOutboundTransaction(data);
+  //     const totalTransactionHappenedOverLast7DaysTotal = calculateTotalTransactionsLast7Days(data);
+  //     const totalTransactionsLast7DaysFromOwner = calculateTotalTransactionsLast7DaysFromOwner(data);
+  //     const chainIDsWithActivity = findChainIDsWithTransactions(data);
+  //     const hasNotDumbTransaction = hasAuthorizeTransaction(data);
+  //     return {
+  //       latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
+  //       totalTransactionHappenedOverLast7DaysTotal,
+  //       totalTransactionsLast7DaysFromOwner,
+  //       chainIDsWithActivity,
+  //       hasNotDumbTransaction,
+  //     }
+  //   } catch (error) {
+  //     console.error('HISTORY',error)
+  //     return null;
+  //   }
+  //
+  // }
 
   async getLastHistoryEvents(address: string): Promise<TransactionData | null> {
     try {
       const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
-      const promises = chains.map(async (chainID) => {
-        const data = await this.httpService.axiosRef.get<TransactionList>(`${process.env.transaction_history_url}/${chainID}/${address}?limit=1000`)
-        const txs = data.data.items;
-        return {items: txs, chainID: chainID} as TransactionListWithChainID;
-      });
-      const data = await Promise.all(promises);
+      const limit = 1000;
+      let data: TransactionListWithChainID[] = [];
+
+      for (const chainID of chains) {
+        let oldestBlockNumber: number | undefined;
+        const txs: Transaction[] = [];
+
+        while (true) {
+          const response = await this.getChainTransactions(address, chainID, limit, oldestBlockNumber);
+          const currentTxs = response.items;
+          txs.push(...currentTxs);
+
+          if (currentTxs.length < limit) {
+            break;
+          }
+
+          oldestBlockNumber = response.oldestBlockNumber;
+        }
+
+        data.push({ items: txs, chainID: chainID } as TransactionListWithChainID);
+      }
 
       const latestOutboundTransaction = findLatestOutboundTransaction(data);
       const totalTransactionHappenedOverLast7DaysTotal = calculateTotalTransactionsLast7Days(data);
       const totalTransactionsLast7DaysFromOwner = calculateTotalTransactionsLast7DaysFromOwner(data);
       const chainIDsWithActivity = findChainIDsWithTransactions(data);
       const hasNotDumbTransaction = hasAuthorizeTransaction(data);
+      const earliestTransaction = findEarliestTransaction(data);
+
       return {
         latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
         totalTransactionHappenedOverLast7DaysTotal,
         totalTransactionsLast7DaysFromOwner,
         chainIDsWithActivity,
         hasNotDumbTransaction,
-      }
+        earliestTransaction
+      };
     } catch (error) {
-      console.error('HISTORY',error)
+      console.error('HISTORY', error);
       return null;
     }
-
   }
+
+  async getChainTransactions(
+      address: string,
+      chainID: number,
+      limit: number,
+      from?: number
+  ): Promise<any> {
+    const response = await this.httpService.axiosRef.get<TransactionList>(
+        `${process.env.transaction_history_url}/${chainID}/${address}?limit=${limit}${from ? `&from=${from}` : ''}`
+    );
+
+    const txs = response.data.items;
+    const oldestBlockNumber = txs.length > 0 ? txs[txs.length - 1].block_number : undefined;
+    return { items: txs, chainID: chainID, oldestBlockNumber: oldestBlockNumber };
+  }
+
 }
 
 function findLatestOutboundTransaction(transactions: TransactionListWithChainID[]): LatestTransaction | null {
@@ -117,4 +178,29 @@ function hasAuthorizeTransaction(transactions: TransactionList[]): boolean {
   }
 
   return false;
+}
+
+interface ChainTransactionData {
+  chainID: number;
+  date: Date;
+}
+
+function findEarliestTransaction(transactions: TransactionListWithChainID[]): ChainTransactionData | null {
+  let earliestTransaction: Transaction | null = null;
+  let earliestChainID: number | null = null;
+
+  for (const chain of transactions) {
+    for (const transaction of chain.items) {
+      if (!earliestTransaction || transaction.mined_at < earliestTransaction.mined_at) {
+        earliestTransaction = transaction;
+        earliestChainID = chain.chainID;
+      }
+    }
+  }
+
+  if (earliestTransaction && earliestChainID !== null) {
+    return { chainID: earliestChainID, date: new Date(earliestTransaction.mined_at * 1000) };
+  }
+
+  return null;
 }

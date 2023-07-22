@@ -45,6 +45,7 @@ export class CheckController {
         totalTransactionsLast7DaysFromOwner: historyStuff ? historyStuff.totalTransactionsLast7DaysFromOwner : null,
         chainIDsWithActivity: historyStuff ? historyStuff.chainIDsWithActivity : null,
         hasNotDumbTransaction: historyStuff ? historyStuff.hasNotDumbTransaction : null,
+        earliestTransaction: historyStuff ? historyStuff.earliestTransaction : null,
       }
 
       this.cache.set(id, data, 60 * 5)

@@ -32,4 +32,5 @@ export interface TransactionData {
     totalTransactionsLast7DaysFromOwner: number;
     chainIDsWithActivity: number[];
     hasNotDumbTransaction: boolean;
+    earliestTransaction: any;
 }
