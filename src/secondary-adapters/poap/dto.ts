@@ -8,7 +8,7 @@ export class NftToken {
     blockchain!: string;
     address!: string;
     name?: string;
-    descripton?: string;
+    description?: string;
     imageUrl?: string;
     animationUrl?: string;
     previewLink?: string;

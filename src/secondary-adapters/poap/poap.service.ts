@@ -47,6 +47,7 @@ export class PoapService {
         lastOnline: this.transformData(lastTokenAtAll.data, lastEventAtAll),
       }
     } catch (error) {
+      console.error(error)
       return null;
     }
   }
@@ -57,7 +58,7 @@ export class PoapService {
       tokenId: event.tokenId,
       blockchain: event.chain,
       name: data.name,
-      descripton: data.description,
+      description: data.description,
       imageUrl: data.image_url,
       animationUrl: data.external_url,
       previewLink: data.home_url,

@@ -31,7 +31,7 @@ export class LensService {
 
       return result.data.profile?.onChainIdentity?.worldcoin?.isHuman;
     } catch (e) {
-      console.error(e);
+      console.error(e)
       return null;
     }
   }
@@ -48,7 +48,7 @@ export class LensService {
 
       return result.data.defaultProfile?.handle;
     } catch (e) {
-      console.error(e);
+      console.error(e)
       return null;
     }
   }

@@ -11,21 +11,27 @@ https://3degens.club/check/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
 ### Return Value
 ```TypeScript
 interface MyData {
-  haveWorldCoin: boolean;
-  lastPoap: LastPoap;
-  latestOutboundTransactionDate: string;
-  totalTransactionHappenedOverLast7DaysTotal: number;
-  totalTransactionsLast7DaysFromOwner: number;
-  chainIDsWithActivity: number[];
-  hasNotDumbTransaction: boolean;
+   hasWorldCoin: boolean;
+   profile: {
+      profiles: any[]; 
+   };
+   poapInfo: POAPInfo;
+   latestOutboundTransactionDate: string;
+   totalTransactionHappenedOverLast7DaysTotal: number;
+   totalTransactionsLast7DaysFromOwner: number;
+   chainIDsWithActivity: number[];
+   hasNotDumbTransaction: boolean;
 }
 ```
 ### Description
 
 1. **haveWorldCoin** (boolean): Indicates whether the user has the "World Coin" or not. If true, it means the user possesses the "World Coin," and if false, it means the user does not have it.
 
-2. **lastPoap** (object): Contains information about the last Proof of Attendance (Poap) token the user received. Poap tokens are typically used to represent attendance or participation in events. 
-**This field contains the following sub-fields:**
+2. **poapInfo**: An object containing information related to POAP (Proof of Attendance Protocol) tokens.
+
+   **lastOffline**: An object representing the most recent POAP token obtained offline by the user.** (object): Contains information about the last Proof of Attendance (Poap) token the user received. Poap tokens are typically used to represent attendance or participation in events. 
+   
+   **This field contains the following sub-fields:**
  
   A) **address** (string): The address of the user's Poap token, represented as a hexadecimal string.
 
@@ -48,6 +54,8 @@ interface MyData {
   J) **traits** (array of objects): An array of traits or attributes associated with the Poap token, each represented by an object with trait_type (string) and value (string) fields.
  
   Q) **owner** (array of strings): An array containing the addresses of users who own this specific Poap token.
+
+**lastOnline**: An object representing the most recent POAP token obtained online by the user. The fields in this object are similar to the lastOffline object but may have different values depending on the token's source.
 
 3. **latestOutboundTransactionDate** (string): The timestamp indicating the date and time of the latest outbound transaction made by the user. An outbound transaction typically means a transaction sent from the user's address to another address on the blockchain.
 4. **totalTransactionHappenedOverLast7DaysTotal** (number): The total number of transactions that occurred for the user over the last 7 days.
