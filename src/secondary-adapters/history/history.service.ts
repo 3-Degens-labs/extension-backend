@@ -110,7 +110,7 @@ function findChainIDsWithTransactions(transactions: TransactionListWithChainID[]
 function hasAuthorizeTransaction(transactions: TransactionList[]): boolean {
   for (const transactionList of transactions) {
     for (const transaction of transactionList.items) {
-      if (transaction.type !== "send" && transaction.type !== "receive" && transaction.type !== "execution") {
+      if (transaction.type !== "send" && transaction.type !== "receive" && transaction.type !== "execution" && transaction.direction === "out") {
         return true;
       }
     }
