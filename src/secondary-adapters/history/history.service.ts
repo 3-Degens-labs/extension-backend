@@ -35,7 +35,7 @@ export class HistoryService {
         hasNotDumbTransaction,
       }
     } catch (error) {
-      console.error(error)
+      console.error('HISTORY',error)
       return null;
     }
 

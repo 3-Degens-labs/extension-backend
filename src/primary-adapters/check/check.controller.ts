@@ -22,8 +22,12 @@ export class CheckController {
   @HttpCode(200)
   async check(@Param('address') id: string): Promise<any> {
     try {
+      console.log('------------------------------------')
+      console.log('checking', id)
       const cached = this.cache.get(id)
       if (cached) {
+        console.log('return cached', id)
+        console.log('------------------------------------')
         return cached
       }
 
@@ -40,6 +44,8 @@ export class CheckController {
       }
 
       this.cache.set(id, data, 60 * 5)
+      console.log('return new', id)
+      console.log('------------------------------------')
       return data;
     } catch (e) {
       throw new InternalServerErrorException();

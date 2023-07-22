@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { ApolloClient, from, InMemoryCache } from '@apollo/client/core';
-import { defaultOptions, errorLink, httpLink } from './values';
-import { DefaultProfileDocument, ProfileDocument, DefaultProfileRequest, SingleProfileQueryRequest } from './generated';
+import {Injectable} from '@nestjs/common';
+import {ApolloClient, from, InMemoryCache} from '@apollo/client/core';
+import {defaultOptions, errorLink, httpLink} from './values';
+import {DefaultProfileDocument, DefaultProfileRequest, ProfileDocument} from './generated';
 
 @Injectable()
 export class LensService {
@@ -31,7 +31,7 @@ export class LensService {
 
       return result.data.profile?.onChainIdentity?.worldcoin?.isHuman;
     } catch (e) {
-      console.error(e)
+      console.error('Lens', e)
       return null;
     }
   }

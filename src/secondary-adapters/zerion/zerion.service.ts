@@ -16,7 +16,7 @@ export class ZerionService {
       const data = await this.httpService.axiosRef.get<TransactionList>(`https://social.zerion.io/api/v2/profiles/?address=${address}`)
       return data.data;
     } catch (error) {
-      console.error(error)
+      console.error('Zerion', error)
       return null;
     }
 

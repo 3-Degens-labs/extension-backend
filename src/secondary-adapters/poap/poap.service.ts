@@ -47,7 +47,7 @@ export class PoapService {
         lastOnline: this.transformData(lastTokenAtAll.data, lastEventAtAll),
       }
     } catch (error) {
-      console.error(error)
+      console.error('POAP error', error)
       return null;
     }
   }
