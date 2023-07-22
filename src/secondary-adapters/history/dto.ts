@@ -29,7 +29,7 @@ export interface TransactionListWithChainID extends TransactionList {
 export interface TransactionData {
     latestOutboundTransactionDate: Date | null;
     totalTransactionHappenedOverLast7DaysTotal: number;
-    calculateTotalTransactionsLast7DaysFromOwner: number;
+    totalTransactionsLast7DaysFromOwner: number;
     chainIDsWithActivity: number[];
     hasNotDumbTransaction: boolean;
 }

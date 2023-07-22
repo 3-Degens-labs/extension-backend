@@ -25,13 +25,13 @@ export class HistoryService {
 
       const latestOutboundTransaction = findLatestOutboundTransaction(data);
       const totalTransactionHappenedOverLast7DaysTotal = calculateTotalTransactionsLast7Days(data);
-      const calculateTotalTransactionsLast7DaysFromOwner = calculateTotalTransactionsLast7Days(data);
+      const totalTransactionsLast7DaysFromOwner = calculateTotalTransactionsLast7DaysFromOwner(data);
       const chainIDsWithActivity = findChainIDsWithTransactions(data);
       const hasNotDumbTransaction = hasAuthorizeTransaction(data);
       return {
         latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
         totalTransactionHappenedOverLast7DaysTotal,
-        calculateTotalTransactionsLast7DaysFromOwner,
+        totalTransactionsLast7DaysFromOwner,
         chainIDsWithActivity,
         hasNotDumbTransaction,
       }

@@ -15,7 +15,7 @@ interface MyData {
   lastPoap: LastPoap;
   latestOutboundTransactionDate: string;
   totalTransactionHappenedOverLast7DaysTotal: number;
-  calculateTotalTransactionsLast7DaysFromOwner: number;
+  totalTransactionsLast7DaysFromOwner: number;
   chainIDsWithActivity: number[];
   hasNotDumbTransaction: boolean;
 }
@@ -51,6 +51,6 @@ interface MyData {
 
 3. **latestOutboundTransactionDate** (string): The timestamp indicating the date and time of the latest outbound transaction made by the user. An outbound transaction typically means a transaction sent from the user's address to another address on the blockchain.
 4. **totalTransactionHappenedOverLast7DaysTotal** (number): The total number of transactions that occurred for the user over the last 7 days.
-5. **calculateTotalTransactionsLast7DaysFromOwner** (number): The number of transactions that occurred in the last 7 days involving the user's address as the owner.
+5. **totalTransactionsLast7DaysFromOwner** (number): The number of transactions that occurred in the last 7 days involving the user's address as the owner.
 6. **chainIDsWithActivity** (array of numbers): An array containing the chain IDs where the user's address was involved in one or more transactions.
 7. **hasNotDumbTransaction** (boolean): A flag indicating whether the user has any non-trivial (not dumb) transactions. If true, it means the user has at least one non-trivial transaction, and if false, it means there are no non-trivial transactions.
