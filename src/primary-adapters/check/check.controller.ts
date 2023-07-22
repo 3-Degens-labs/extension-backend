@@ -40,7 +40,11 @@ export class CheckController {
         hasWorldCoin: hasWorldCoin ? hasWorldCoin : false,
         profile: profile ? profile : null,
         poapInfo: poapInfo ? poapInfo : null,
-        ...historyStuff
+        latestOutboundTransactionDate: historyStuff ? historyStuff.latestOutboundTransactionDate : null,
+        totalTransactionHappenedOverLast7DaysTotal: historyStuff ? historyStuff.totalTransactionHappenedOverLast7DaysTotal : null,
+        totalTransactionsLast7DaysFromOwner: historyStuff ? historyStuff.totalTransactionsLast7DaysFromOwner : null,
+        chainIDsWithActivity: historyStuff ? historyStuff.chainIDsWithActivity : null,
+        hasNotDumbTransaction: historyStuff ? historyStuff.hasNotDumbTransaction : null,
       }
 
       this.cache.set(id, data, 60 * 5)

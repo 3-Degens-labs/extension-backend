@@ -4,7 +4,9 @@ import {ZerionService} from './zerion.service';
 
 @Module({
   imports: [
-    HttpModule.register({}),
+    HttpModule.register({
+      timeout: 5000,
+    }),
   ],
   providers: [ZerionService],
   exports: [ZerionService],

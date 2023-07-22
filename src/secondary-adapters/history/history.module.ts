@@ -4,7 +4,9 @@ import {HistoryService} from './history.service';
 
 @Module({
   imports: [
-    HttpModule.register({}),
+    HttpModule.register({
+      timeout: 5000,
+    }),
   ],
   providers: [HistoryService],
   exports: [HistoryService],
