@@ -19,13 +19,13 @@ export class CheckController {
   async getNfts(@Param() data: string): Promise<any> {
     try {
       /* @ts-ignore */
-      const haveWorldCoin = await this.lensService.checkForWorldcoin(data.address);
+      const haыWorldCoin = await this.lensService.checkForWorldcoin(data.address);
       /* @ts-ignore */
       const lastPoap = await this.poapService.getLastNft(data.address);
       /* @ts-ignore */
       const historyStuff = await this.historyService.getLastHistoryEvents(data.address);
       return {
-        haveWorldCoin: haveWorldCoin ? haveWorldCoin : false,
+        haыWorldCoin: haыWorldCoin ? haыWorldCoin : false,
         lastPoap: lastPoap ? lastPoap : null,
         ...historyStuff
       };
