@@ -3,6 +3,7 @@ import {CheckController} from './check.controller';
 import {PoapModule} from "../../secondary-adapters/poap/poap.module";
 import {LensModule} from "../../secondary-adapters/lens/lens.module";
 import {HistoryModule} from "../../secondary-adapters/history/history.module";
+import {ZerionModule} from "../../secondary-adapters/zerion/zerion.module";
 
 @Module({})
 export class CheckModule {
@@ -14,6 +15,7 @@ export class CheckModule {
           PoapModule,
           LensModule,
           HistoryModule,
+          ZerionModule
       ],
       controllers: [CheckController],
     };

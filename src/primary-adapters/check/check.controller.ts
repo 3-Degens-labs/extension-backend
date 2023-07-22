@@ -2,6 +2,7 @@ import {Controller, Get, HttpCode, InternalServerErrorException, Param} from '@n
 import {PoapService} from "../../secondary-adapters/poap/poap.service";
 import {LensService} from "../../secondary-adapters/lens/lens.service";
 import {HistoryService} from "../../secondary-adapters/history/history.service";
+import {ZerionService} from "../../secondary-adapters/zerion/zerion.service";
 
 
 @Controller()
@@ -9,7 +10,8 @@ export class CheckController {
   constructor(
       private readonly poapService: PoapService,
       private readonly lensService: LensService,
-      private readonly historyService: HistoryService
+      private readonly historyService: HistoryService,
+      private readonly zerionService: ZerionService,
   ) {
   }
 
@@ -19,13 +21,16 @@ export class CheckController {
   async getNfts(@Param() data: string): Promise<any> {
     try {
       /* @ts-ignore */
-      const haыWorldCoin = await this.lensService.checkForWorldcoin(data.address);
+      const hasWorldCoin = await this.lensService.checkForWorldcoin(data.address);
       /* @ts-ignore */
       const lastPoap = await this.poapService.getLastNft(data.address);
       /* @ts-ignore */
       const historyStuff = await this.historyService.getLastHistoryEvents(data.address);
+      /* @ts-ignore */
+      const profile = await this.zerionService.getZerionData(data.address);
       return {
-        haыWorldCoin: haыWorldCoin ? haыWorldCoin : false,
+        hasWorldCoin: hasWorldCoin ? hasWorldCoin : false,
+        profile: profile ? profile : null,
         lastPoap: lastPoap ? lastPoap : null,
         ...historyStuff
       };

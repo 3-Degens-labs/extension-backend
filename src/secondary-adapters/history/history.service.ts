@@ -9,7 +9,6 @@ export class HistoryService {
   constructor(
       private readonly httpService: HttpService,
   ) {
-    process.env
   }
 
 
