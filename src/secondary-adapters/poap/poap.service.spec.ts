@@ -24,7 +24,7 @@ describe('PoapService', () => {
   });
 
   it('should resolve the correct address', async () => {
-    const address = await service.getLastNft('0x2655aCd028268B65A6ED68376da477Edc9431459');
+    const address = await service.getLastNft('0x95E1D29b0B29257aF04D0991443df2bc2eA317D6');
 
     expect(address).toBeDefined();
   }, 10000);

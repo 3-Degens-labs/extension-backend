@@ -1,5 +1,8 @@
 
-
+export class PoapResponse {
+    lastOffline: NftToken | null;
+    lastOnline: NftToken | null;
+}
 export class NftToken {
     tokenId!: string;
     blockchain!: string;

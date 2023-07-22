@@ -1,8 +1,8 @@
 import {Injectable} from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
+import {HttpService} from '@nestjs/axios';
 import {GetNftsResponse, MetadataResponse} from "./poap.schema";
 import * as process from "process";
-import { NftToken} from "./dto";
+import {NftToken, PoapResponse} from "./dto";
 
 @Injectable()
 export class PoapService {
@@ -26,15 +26,26 @@ export class PoapService {
     }
   }
 
-  async getLastNft(address: string): Promise<NftToken | null> {
+  async getLastNft(address: string): Promise<PoapResponse | null> {
     try {
       const {data} = await this.httpService.axiosRef.get<GetNftsResponse[]>(`/actions/scan/${address}`);
       if (data.length === 0) {
         return null;
       }
-      const lastEvent = data[0];
-      const lastToken = await this.httpService.axiosRef.get<MetadataResponse>(`/metadata/${lastEvent.event?.id}/${lastEvent.tokenId}`)
-      return this.transformData(lastToken.data, lastEvent);
+      const lastEvent = getEarliestEventWithCountry(data);
+      if (!lastEvent) {
+        return null;
+      }
+
+      const lastEventAtAll = getEarliestEventWithNoCountry(data);
+
+      const lastToken = await this.httpService.axiosRef.get<MetadataResponse>(`/metadata/${lastEvent.event?.id}/${lastEvent.tokenId}`);
+
+      const lastTokenAtAll = await this.httpService.axiosRef.get<MetadataResponse>(`/metadata/${lastEventAtAll.event?.id}/${lastEventAtAll.tokenId}`)
+      return {
+        lastOffline: this.transformData(lastToken.data, lastEvent),
+        lastOnline: this.transformData(lastTokenAtAll.data, lastEventAtAll),
+      }
     } catch (error) {
       return null;
     }
@@ -55,4 +66,30 @@ export class PoapService {
       created: event.created,
     };
   }
+}
+
+function getEarliestEventWithCountry(events: GetNftsResponse[]): GetNftsResponse | null {
+  let latestEvent: GetNftsResponse | null = null;
+
+  for (const event of events) {
+    if (event.event.country !== "") {
+      latestEvent = event;
+      break;
+    }
+  }
+
+  return latestEvent;
+}
+
+function getEarliestEventWithNoCountry(events: GetNftsResponse[]): GetNftsResponse | null {
+  let latestEvent: GetNftsResponse | null = null;
+
+  for (const event of events) {
+    if (event.event.country === "") {
+      latestEvent = event;
+      break;
+    }
+  }
+
+  return latestEvent;
 }

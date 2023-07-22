@@ -23,7 +23,7 @@ export class CheckController {
       /* @ts-ignore */
       const hasWorldCoin = await this.lensService.checkForWorldcoin(data.address);
       /* @ts-ignore */
-      const lastPoap = await this.poapService.getLastNft(data.address);
+      const poapInfo = await this.poapService.getLastNft(data.address);
       /* @ts-ignore */
       const historyStuff = await this.historyService.getLastHistoryEvents(data.address);
       /* @ts-ignore */
@@ -31,7 +31,7 @@ export class CheckController {
       return {
         hasWorldCoin: hasWorldCoin ? hasWorldCoin : false,
         profile: profile ? profile : null,
-        lastPoap: lastPoap ? lastPoap : null,
+        poapInfo: poapInfo ? poapInfo : null,
         ...historyStuff
       };
     } catch (e) {
