@@ -13,7 +13,7 @@ export class ZerionService {
 
   async getZerionData(address: string): Promise<any | null> {
     try {
-      const data = await this.httpService.axiosRef.get<TransactionList>(`https://social.zerion.io/api/v1/profiles/?address=${address}`)
+      const data = await this.httpService.axiosRef.get<TransactionList>(`https://social.zerion.io/api/v2/profiles/?address=${address}`)
       return data.data;
     } catch (error) {
       return null;
