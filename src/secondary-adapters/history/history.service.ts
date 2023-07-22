@@ -71,6 +71,7 @@ export class HistoryService {
       const chainIDsWithActivity = findChainIDsWithTransactions(data);
       const hasNotDumbTransaction = hasAuthorizeTransaction(data);
       const earliestTransaction = findEarliestTransaction(data);
+      const totalTxs = calculateTotalTransactions(data)
 
       return {
         latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
@@ -78,7 +79,8 @@ export class HistoryService {
         totalTransactionsLast7DaysFromOwner,
         chainIDsWithActivity,
         hasNotDumbTransaction,
-        earliestTransaction
+        earliestTransaction,
+        totalTxs
       };
     } catch (error) {
       console.error('HISTORY', error);
@@ -203,4 +205,14 @@ function findEarliestTransaction(transactions: TransactionListWithChainID[]): Ch
   }
 
   return null;
+}
+
+function calculateTotalTransactions(transactions: TransactionListWithChainID[]): number {
+  let totalTransactions = 0;
+
+  for (const chain of transactions) {
+    totalTransactions += chain.items.length;
+  }
+
+  return totalTransactions;
 }

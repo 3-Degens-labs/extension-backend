@@ -33,4 +33,5 @@ export interface TransactionData {
     chainIDsWithActivity: number[];
     hasNotDumbTransaction: boolean;
     earliestTransaction: any;
+    totalTxs: number;
 }
