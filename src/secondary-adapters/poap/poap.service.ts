@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import {GetNftsResponse, MetadataResponse} from "./poap.schema";
 import * as process from "process";
-import {GetNftsRequestDto, NftToken} from "./dto";
+import { NftToken} from "./dto";
 
 @Injectable()
 export class PoapService {
@@ -13,8 +13,7 @@ export class PoapService {
     process.env
   }
 
-  async getNfts(getNftsRequestDto: GetNftsRequestDto): Promise<NftToken[]> {
-    const {address} = getNftsRequestDto;
+  async getNfts(address: string): Promise<NftToken[]> {
     try {
       const {data} = await this.httpService.axiosRef.get<GetNftsResponse[]>(`/actions/scan/${address}`);
       const promises = data.map(async (event) => {
@@ -27,8 +26,7 @@ export class PoapService {
     }
   }
 
-  async getLastNft(getNftsRequestDto: GetNftsRequestDto): Promise<NftToken | null> {
-    const {address} = getNftsRequestDto;
+  async getLastNft(address: string): Promise<NftToken | null> {
     try {
       const {data} = await this.httpService.axiosRef.get<GetNftsResponse[]>(`/actions/scan/${address}`);
       if (data.length === 0) {

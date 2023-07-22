@@ -1,7 +1,4 @@
-export class GetNftsRequestDto {
-    chainIds: number[];
-    address: string;
-}
+
 
 export class NftToken {
     tokenId!: string;

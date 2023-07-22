@@ -1,7 +1,8 @@
 import {Module} from '@nestjs/common';
+import {CheckModule} from "./primary-adapters/check/check.module";
 
 @Module({
-    imports: [],
+    imports: [CheckModule.register()],
     controllers: [],
     providers: [],
 })

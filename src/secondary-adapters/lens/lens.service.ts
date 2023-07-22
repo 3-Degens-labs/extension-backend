@@ -17,14 +17,16 @@ export class LensService {
     });
   }
 
-  async checkForWorldcoin(handle: string): Promise<string | null> {
+  async checkForWorldcoin(address: string): Promise<string | null> {
     try {
-      const request: SingleProfileQueryRequest = { handle };
+      const handle = await this.reverseResolve(address);
+      if (!handle) {
+        return null;
+      }
+
       const result = await this.apolloClient.query({
         query: ProfileDocument,
-        variables: {
-          request,
-        },
+        variables: {"request": {"handle": handle}}
       });
 
       return result.data.profile?.onChainIdentity?.worldcoin?.isHuman;
@@ -33,4 +35,22 @@ export class LensService {
       return null;
     }
   }
+
+  async reverseResolve(address: string): Promise<string | null> {
+    try {
+      const request: DefaultProfileRequest = { ethereumAddress: address };
+      const result = await this.apolloClient.query({
+        query: DefaultProfileDocument,
+        variables: {
+          request,
+        },
+      });
+
+      return result.data.defaultProfile?.handle;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
 }
