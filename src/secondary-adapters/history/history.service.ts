@@ -43,8 +43,10 @@ export class HistoryService {
   async getLastHistoryEvents(address: string): Promise<TransactionData | null> {
     try {
       const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
-      const limit = 1000;
+      const limit = 5000;
       let data: TransactionListWithChainID[] = [];
+      let totaTxsCounter = 0;
+      let oldEnough = false;
 
       for (const chainID of chains) {
         let oldestBlockNumber: number | undefined;
@@ -55,9 +57,18 @@ export class HistoryService {
           const currentTxs = response.items;
           txs.push(...currentTxs);
 
-          if (currentTxs.length < limit) {
+          if (currentTxs.length === 0 || response.oldestBlockNumber === undefined) {
             break;
           }
+          totaTxsCounter += currentTxs.length;
+
+          if (totaTxsCounter > 20_000) {
+            oldEnough = true;
+            break;
+          }
+
+          // console.log(`Fetched ${currentTxs.length} transactions for chain ${chainID}`)
+          // console.log(`Total ${txs.length} transactions for chain ${chainID}`)
 
           oldestBlockNumber = response.oldestBlockNumber;
         }
@@ -80,7 +91,8 @@ export class HistoryService {
         chainIDsWithActivity,
         hasNotDumbTransaction,
         earliestTransaction,
-        totalTxs
+        totalTxs,
+        oldEnough
       };
     } catch (error) {
       console.error('HISTORY', error);

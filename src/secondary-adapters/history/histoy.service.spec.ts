@@ -21,8 +21,8 @@ describe('History', () => {
   });
 
   it('should resolve the correct address 2', async () => {
-    const address = await service.getLastHistoryEvents('0x2655aCd028268B65A6ED68376da477Edc9431459');
+    const address = await service.getLastHistoryEvents('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
 
     expect(address).toBeDefined();
-  }, 10000);
+  }, 100000);
 });

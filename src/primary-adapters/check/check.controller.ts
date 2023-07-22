@@ -47,6 +47,7 @@ export class CheckController {
         hasNotDumbTransaction: historyStuff ? historyStuff.hasNotDumbTransaction : null,
         earliestTransaction: historyStuff ? historyStuff.earliestTransaction : null,
         totalTxs: historyStuff ? historyStuff.totalTxs : null,
+        oldEnough: historyStuff ? historyStuff.oldEnough : null,
       }
 
       this.cache.set(id, data, 60 * 5)

@@ -34,4 +34,5 @@ export interface TransactionData {
     hasNotDumbTransaction: boolean;
     earliestTransaction: any;
     totalTxs: number;
+    oldEnough: boolean;
 }
