@@ -1,73 +1,56 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+### Degen Backend for Degen Frontend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Will try to return a data about a user address.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### Try
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ yarn install
+```Markdown
+https://3degens.club/check/0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045
 ```
 
-## Running the app
-
-```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+### Return Value
+```TypeScript
+interface MyData {
+  haveWorldCoin: boolean;
+  lastPoap: LastPoap;
+  latestOutboundTransactionDate: string;
+  totalTransactionHappenedOverLast7DaysTotal: number;
+  calculateTotalTransactionsLast7DaysFromOwner: number;
+  chainIDsWithActivity: number[];
+  hasNotDumbTransaction: boolean;
+}
 ```
+### Description
 
-## Test
+1. **haveWorldCoin** (boolean): Indicates whether the user has the "World Coin" or not. If true, it means the user possesses the "World Coin," and if false, it means the user does not have it.
 
-```bash
-# unit tests
-$ yarn run test
+2. **lastPoap** (object): Contains information about the last Proof of Attendance (Poap) token the user received. Poap tokens are typically used to represent attendance or participation in events. 
+**This field contains the following sub-fields:**
+ 
+  A) **address** (string): The address of the user's Poap token, represented as a hexadecimal string.
 
-# e2e tests
-$ yarn run test:e2e
+  B) **created** (string): The timestamp indicating when the Poap token was created, represented in the format "YYYY-MM-DD HH:mm:ss".
 
-# test coverage
-$ yarn run test:cov
-```
+  C) **tokenId** (string): The unique identifier of the Poap token, represented as a string.
 
-## Support
+  D) **blockchain** (string): The name of the blockchain on which the Poap token is issued (e.g., "xdai").
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+  E) **name** (string): The name of the Poap token, which is often related to the event or purpose of the token.
 
-## Stay in touch
+  F) **description** (string): A detailed description of the Poap token, typically including information about the event attended and additional details.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+  G) **imageUrl** (string): The URL pointing to the image associated with the Poap token.
 
-## License
+  H) **animationUrl** (string): The URL pointing to the animation associated with the Poap token, if applicable.
 
-Nest is [MIT licensed](LICENSE).
+  I) **previewLink** (string): The URL providing a preview of the Poap token or additional information.
+
+  J) **traits** (array of objects): An array of traits or attributes associated with the Poap token, each represented by an object with trait_type (string) and value (string) fields.
+ 
+  Q) **owner** (array of strings): An array containing the addresses of users who own this specific Poap token.
+
+3. **latestOutboundTransactionDate** (string): The timestamp indicating the date and time of the latest outbound transaction made by the user. An outbound transaction typically means a transaction sent from the user's address to another address on the blockchain.
+4. **totalTransactionHappenedOverLast7DaysTotal** (number): The total number of transactions that occurred for the user over the last 7 days.
+5. **calculateTotalTransactionsLast7DaysFromOwner** (number): The number of transactions that occurred in the last 7 days involving the user's address as the owner.
+6. **chainIDsWithActivity** (array of numbers): An array containing the chain IDs where the user's address was involved in one or more transactions.
+7. **hasNotDumbTransaction** (boolean): A flag indicating whether the user has any non-trivial (not dumb) transactions. If true, it means the user has at least one non-trivial transaction, and if false, it means there are no non-trivial transactions.
