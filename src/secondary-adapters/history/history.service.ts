@@ -11,24 +11,44 @@ export class HistoryService {
   ) {
   }
 
+  // async getLastHistoryEvents(address: string): Promise<TransactionData | null> {
+  //   try {
+  //     const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
+  //     const promises = chains.map(async (chainID) => {
+  //       const data = await this.httpService.axiosRef.get<TransactionList>(`${process.env.transaction_history_url}/${chainID}/${address}?limit=1000`)
+  //       const txs = data.data.items;
+  //       return {items: txs, chainID: chainID} as TransactionListWithChainID;
+  //     });
+  //     const data = await Promise.all(promises);
+  //
+  //     const latestOutboundTransaction = findLatestOutboundTransaction(data);
+  //     const totalTransactionHappenedOverLast7DaysTotal = calculateTotalTransactionsLast7Days(data);
+  //     const totalTransactionsLast7DaysFromOwner = calculateTotalTransactionsLast7DaysFromOwner(data);
+  //     const chainIDsWithActivity = findChainIDsWithTransactions(data);
+  //     const hasNotDumbTransaction = hasAuthorizeTransaction(data);
+  //     return {
+  //       latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
+  //       totalTransactionHappenedOverLast7DaysTotal,
+  //       totalTransactionsLast7DaysFromOwner,
+  //       chainIDsWithActivity,
+  //       hasNotDumbTransaction,
+  //     }
+  //   } catch (error) {
+  //     console.error('HISTORY',error)
+  //     return null;
+  //   }
+  //
+  // }
+
   async getLastHistoryEvents(address: string): Promise<TransactionData | null> {
     try {
       const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
-      const limit = 3000;
-      let data: TransactionListWithChainID[] = [];
+      const limit = 5000;
 
-
-
-
-// Assuming `chains` is an array of chainIDs
       const promises = chains.map(chainID => this.fetchTransactions(chainID, address, limit));
       const allTransactions = await Promise.all(promises);
 
-// Merge the results into `data` array
-      data = chains.map((chainID, index) => ({ items: allTransactions[index], chainID: chainID }));
-
-// Now, the data array contains transactions for each chainID fetched in parallel.
-
+      const data = chains.map((chainID, index) => ({items: allTransactions[index], chainID: chainID}));
 
       const latestOutboundTransaction = findLatestOutboundTransaction(data);
       const totalTransactionHappenedOverLast7DaysTotal = calculateTotalTransactionsLast7Days(data);
@@ -37,8 +57,7 @@ export class HistoryService {
       const hasNotDumbTransaction = hasAuthorizeTransaction(data);
       const earliestTransaction = findEarliestTransaction(data);
       const totalTxs = calculateTotalTransactions(data)
-      const oldEnough = totalTxs > 5_000;
-
+      const oldEnough = totalTxs > 10_000;
       return {
         latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
         totalTransactionHappenedOverLast7DaysTotal,
@@ -55,25 +74,12 @@ export class HistoryService {
     }
   }
 
-  async fetchTransactions(chainID: number, address: string, limit: number, oldestBlockNumber?: number): Promise<Transaction[]> {
-    let totaTxsCounter = 0;
+  async fetchTransactions(chainID: number, address: string, limit: number): Promise<Transaction[]> {
     const txs: Transaction[] = [];
 
-    while (true) {
-      const response = await this.getChainTransactions(address, chainID, limit, oldestBlockNumber);
-      const currentTxs = response.items;
-      txs.push(...currentTxs);
-
-      if (currentTxs.length === 0 || response.oldestBlockNumber === undefined) {
-        break;
-      }
-      totaTxsCounter += currentTxs.length;
-
-      if (totaTxsCounter > 5_000) {
-        break;
-      }
-
-      oldestBlockNumber = response.oldestBlockNumber;
+    const result = await this.getChainTransactions(address, chainID, limit);
+    if (result && result.items && result.items.length > 0) {
+      txs.push(...result.items);
     }
 
     return txs;
@@ -83,10 +89,9 @@ export class HistoryService {
       address: string,
       chainID: number,
       limit: number,
-      from?: number
   ): Promise<any> {
     const response = await this.httpService.axiosRef.get<TransactionList>(
-        `${process.env.transaction_history_url}/${chainID}/${address}?limit=${limit}${from ? `&from=${from}` : ''}`
+        `${process.env.transaction_history_url}/${chainID}/${address}?limit=${limit}`
     );
 
     const txs = response.data.items;
