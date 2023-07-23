@@ -68,7 +68,7 @@ export class CheckController {
         oldEnough: historyStuff ? historyStuff.oldEnough : null,
       }
 
-      if (historyStuff && poapInfo && profile) {
+      if (historyStuff) {
         this.cache.set(id, data, 60 * 5)
 
         try {
