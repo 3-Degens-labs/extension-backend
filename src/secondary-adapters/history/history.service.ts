@@ -11,39 +11,10 @@ export class HistoryService {
   ) {
   }
 
-  // async getLastHistoryEvents(address: string): Promise<TransactionData | null> {
-  //   try {
-  //     const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
-  //     const promises = chains.map(async (chainID) => {
-  //       const data = await this.httpService.axiosRef.get<TransactionList>(`${process.env.transaction_history_url}/${chainID}/${address}?limit=1000`)
-  //       const txs = data.data.items;
-  //       return {items: txs, chainID: chainID} as TransactionListWithChainID;
-  //     });
-  //     const data = await Promise.all(promises);
-  //
-  //     const latestOutboundTransaction = findLatestOutboundTransaction(data);
-  //     const totalTransactionHappenedOverLast7DaysTotal = calculateTotalTransactionsLast7Days(data);
-  //     const totalTransactionsLast7DaysFromOwner = calculateTotalTransactionsLast7DaysFromOwner(data);
-  //     const chainIDsWithActivity = findChainIDsWithTransactions(data);
-  //     const hasNotDumbTransaction = hasAuthorizeTransaction(data);
-  //     return {
-  //       latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
-  //       totalTransactionHappenedOverLast7DaysTotal,
-  //       totalTransactionsLast7DaysFromOwner,
-  //       chainIDsWithActivity,
-  //       hasNotDumbTransaction,
-  //     }
-  //   } catch (error) {
-  //     console.error('HISTORY',error)
-  //     return null;
-  //   }
-  //
-  // }
-
   async getLastHistoryEvents(address: string): Promise<TransactionData | null> {
     try {
       const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
-      const limit = 5000;
+      const limit = 3000;
       let data: TransactionListWithChainID[] = [];
       let totaTxsCounter = 0;
       let oldEnough = false;
@@ -62,7 +33,7 @@ export class HistoryService {
           }
           totaTxsCounter += currentTxs.length;
 
-          if (totaTxsCounter > 20_000) {
+          if (totaTxsCounter > 10_000) {
             oldEnough = true;
             break;
           }

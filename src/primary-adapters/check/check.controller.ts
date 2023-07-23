@@ -4,10 +4,13 @@ import {LensService} from "../../secondary-adapters/lens/lens.service";
 import {HistoryService} from "../../secondary-adapters/history/history.service";
 import {ZerionService} from "../../secondary-adapters/zerion/zerion.service";
 import * as NodeCache from 'node-cache';
+import Redis from "ioredis";
+import * as process from "process";
 
 @Controller()
 export class CheckController {
   private cache = new NodeCache()
+  private redis = new Redis(process.env.redis_url);
 
   constructor(
       private readonly poapService: PoapService,
@@ -31,6 +34,19 @@ export class CheckController {
         return cached
       }
 
+      try {
+        const cachedRedis =await this.redis.get(id);
+
+        if (cachedRedis && cachedRedis !== '') {
+          console.log('return cached', id)
+          console.log('------------------------------------')
+          return JSON.parse(cachedRedis);
+        }
+      } catch (e) {
+        console.log('redis error', e)
+      }
+
+
       const hasWorldCoin = await this.lensService.checkForWorldcoin(id);
       const poapInfo = await this.poapService.getLastNft(id);
       const historyStuff = await this.historyService.getLastHistoryEvents(id);
@@ -51,6 +67,15 @@ export class CheckController {
       }
 
       this.cache.set(id, data, 60 * 5)
+
+      try {
+        await this.redis.set(id, JSON.stringify(data), 'EX', 60 * 5);
+      } catch (e) {
+        console.log('redis error', e)
+      }
+
+      await this.redis.set(id, JSON.stringify(data), 'EX', 60 * 5);
+
       console.log('return new', id)
       console.log('------------------------------------')
       return data;
