@@ -59,7 +59,7 @@ export class HistoryService {
 
       const data = chains
           .map((chainID, index) => ({items: allTransactions[index], chainID: chainID}))
-          .filter(item => item.items.length > 0);
+          .filter(item => item && item.items && item.items.length > 0);
 
 
       const latestOutboundTransaction = findLatestOutboundTransaction(data);
