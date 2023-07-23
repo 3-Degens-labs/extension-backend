@@ -16,51 +16,19 @@ export class HistoryService {
       const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
       const limit = 3000;
       let data: TransactionListWithChainID[] = [];
-      let totaTxsCounter = 0;
-      let oldEnough = false;
 
-      // Helper function to fetch transactions for a single chain
-      const fetchChainTransactions = async (chainID: number, oldestBlockNumber?: number) => {
-        try {
-          const response = await this.getChainTransactions(address, chainID, limit, oldestBlockNumber);
-          return { chainID, response };
-        } catch (error) {
-          console.error(`Error fetching transactions for chain ${chainID}:`, error);
-          return null; // Return null in case of error to be filtered out later
-        }
-      };
 
-      // Fetch transactions for all chains in parallel
-      const chainRequests = chains.map((chainID) => fetchChainTransactions(chainID));
 
-      const chainResponses = await Promise.all(chainRequests);
 
-      // Filter out failed chains (null responses)
-      const successfulChainResponses = chainResponses.filter((response) => response !== null);
+// Assuming `chains` is an array of chainIDs
+      const promises = chains.map(chainID => this.fetchTransactions(chainID, address, limit));
+      const allTransactions = await Promise.all(promises);
 
-      for (const { chainID, response } of successfulChainResponses) {
-        let oldestBlockNumber: number | undefined;
-        const txs: Transaction[] = [];
+// Merge the results into `data` array
+      data = chains.map((chainID, index) => ({ items: allTransactions[index], chainID: chainID }));
 
-        while (true) {
-          const currentTxs = response.items;
-          txs.push(...currentTxs);
+// Now, the data array contains transactions for each chainID fetched in parallel.
 
-          if (currentTxs.length === 0 || response.oldestBlockNumber === undefined) {
-            break;
-          }
-          totaTxsCounter += currentTxs.length;
-
-          if (totaTxsCounter > 10_000) {
-            oldEnough = true;
-            break;
-          }
-
-          oldestBlockNumber = response.oldestBlockNumber;
-        }
-
-        data.push({ items: txs, chainID: chainID } as TransactionListWithChainID);
-      }
 
       const latestOutboundTransaction = findLatestOutboundTransaction(data);
       const totalTransactionHappenedOverLast7DaysTotal = calculateTotalTransactionsLast7Days(data);
@@ -68,7 +36,8 @@ export class HistoryService {
       const chainIDsWithActivity = findChainIDsWithTransactions(data);
       const hasNotDumbTransaction = hasAuthorizeTransaction(data);
       const earliestTransaction = findEarliestTransaction(data);
-      const totalTxs = calculateTotalTransactions(data);
+      const totalTxs = calculateTotalTransactions(data)
+      const oldEnough = totalTxs > 5_000;
 
       return {
         latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
@@ -78,7 +47,7 @@ export class HistoryService {
         hasNotDumbTransaction,
         earliestTransaction,
         totalTxs,
-        oldEnough,
+        oldEnough
       };
     } catch (error) {
       console.error('HISTORY', error);
@@ -86,6 +55,29 @@ export class HistoryService {
     }
   }
 
+  async fetchTransactions(chainID: number, address: string, limit: number, oldestBlockNumber?: number): Promise<Transaction[]> {
+    let totaTxsCounter = 0;
+    const txs: Transaction[] = [];
+
+    while (true) {
+      const response = await this.getChainTransactions(address, chainID, limit, oldestBlockNumber);
+      const currentTxs = response.items;
+      txs.push(...currentTxs);
+
+      if (currentTxs.length === 0 || response.oldestBlockNumber === undefined) {
+        break;
+      }
+      totaTxsCounter += currentTxs.length;
+
+      if (totaTxsCounter > 5_000) {
+        break;
+      }
+
+      oldestBlockNumber = response.oldestBlockNumber;
+    }
+
+    return txs;
+  }
 
   async getChainTransactions(
       address: string,
