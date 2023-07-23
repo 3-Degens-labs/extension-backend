@@ -45,10 +45,22 @@ export class HistoryService {
       const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
       const limit = 5000;
 
-      const promises = chains.map(chainID => this.fetchTransactions(chainID, address, limit));
+      // const promises = chains.map(chainID => this.fetchTransactions(chainID, address, limit));
+      // const allTransactions = await Promise.all(promises);
+      //
+      // const data = chains.map((chainID, index) => ({items: allTransactions[index], chainID: chainID}));
+
+      const promises = []
+      chains.forEach(chainID => {
+        promises.push(this.fetchTransactionsWithRetry(chainID, address, limit))
+      });
+
       const allTransactions = await Promise.all(promises);
 
-      const data = chains.map((chainID, index) => ({items: allTransactions[index], chainID: chainID}));
+      const data = chains
+          .map((chainID, index) => ({items: allTransactions[index], chainID: chainID}))
+          .filter(item => item.items.length > 0);
+
 
       const latestOutboundTransaction = findLatestOutboundTransaction(data);
       const totalTransactionHappenedOverLast7DaysTotal = calculateTotalTransactionsLast7Days(data);
@@ -57,7 +69,17 @@ export class HistoryService {
       const hasNotDumbTransaction = hasAuthorizeTransaction(data);
       const earliestTransaction = findEarliestTransaction(data);
       const totalTxs = calculateTotalTransactions(data)
-      const oldEnough = totalTxs > 10_000;
+      let oldEnough = totalTxs > 10_000;
+
+      if (!oldEnough) {
+        data.forEach((d) => {
+          if (d.items && d.items.length === 5000) {
+            oldEnough = true;
+            return
+          }
+        })
+      }
+
       return {
         latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
         totalTransactionHappenedOverLast7DaysTotal,
@@ -74,17 +96,6 @@ export class HistoryService {
     }
   }
 
-  async fetchTransactions(chainID: number, address: string, limit: number): Promise<Transaction[]> {
-    const txs: Transaction[] = [];
-
-    const result = await this.getChainTransactions(address, chainID, limit);
-    if (result && result.items && result.items.length > 0) {
-      txs.push(...result.items);
-    }
-
-    return txs;
-  }
-
   async getChainTransactions(
       address: string,
       chainID: number,
@@ -96,7 +107,23 @@ export class HistoryService {
 
     const txs = response.data.items;
     const oldestBlockNumber = txs.length > 0 ? txs[txs.length - 1].block_number : undefined;
-    return { items: txs, chainID: chainID, oldestBlockNumber: oldestBlockNumber };
+    return {items: txs, chainID: chainID, oldestBlockNumber: oldestBlockNumber};
+  }
+
+  async fetchTransactionsWithRetry(chainID, address, limit, retry?: number): Promise<Transaction[]> {
+    try {
+      const result = await this.getChainTransactions(address, chainID, limit);
+      if (result && result.items) {
+        return result.items;
+      }
+    } catch (error) {
+      if (retry === undefined) {
+        retry = 1;
+      }
+      retry++
+      await this.fetchTransactionsWithRetry(chainID, address, limit, retry)
+    }
+
   }
 
 }
