@@ -19,12 +19,30 @@ export class HistoryService {
       let totaTxsCounter = 0;
       let oldEnough = false;
 
-      for (const chainID of chains) {
+      // Helper function to fetch transactions for a single chain
+      const fetchChainTransactions = async (chainID: number, oldestBlockNumber?: number) => {
+        try {
+          const response = await this.getChainTransactions(address, chainID, limit, oldestBlockNumber);
+          return { chainID, response };
+        } catch (error) {
+          console.error(`Error fetching transactions for chain ${chainID}:`, error);
+          return null; // Return null in case of error to be filtered out later
+        }
+      };
+
+      // Fetch transactions for all chains in parallel
+      const chainRequests = chains.map((chainID) => fetchChainTransactions(chainID));
+
+      const chainResponses = await Promise.all(chainRequests);
+
+      // Filter out failed chains (null responses)
+      const successfulChainResponses = chainResponses.filter((response) => response !== null);
+
+      for (const { chainID, response } of successfulChainResponses) {
         let oldestBlockNumber: number | undefined;
         const txs: Transaction[] = [];
 
         while (true) {
-          const response = await this.getChainTransactions(address, chainID, limit, oldestBlockNumber);
           const currentTxs = response.items;
           txs.push(...currentTxs);
 
@@ -38,9 +56,6 @@ export class HistoryService {
             break;
           }
 
-          // console.log(`Fetched ${currentTxs.length} transactions for chain ${chainID}`)
-          // console.log(`Total ${txs.length} transactions for chain ${chainID}`)
-
           oldestBlockNumber = response.oldestBlockNumber;
         }
 
@@ -53,7 +68,7 @@ export class HistoryService {
       const chainIDsWithActivity = findChainIDsWithTransactions(data);
       const hasNotDumbTransaction = hasAuthorizeTransaction(data);
       const earliestTransaction = findEarliestTransaction(data);
-      const totalTxs = calculateTotalTransactions(data)
+      const totalTxs = calculateTotalTransactions(data);
 
       return {
         latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
@@ -63,13 +78,14 @@ export class HistoryService {
         hasNotDumbTransaction,
         earliestTransaction,
         totalTxs,
-        oldEnough
+        oldEnough,
       };
     } catch (error) {
       console.error('HISTORY', error);
       return null;
     }
   }
+
 
   async getChainTransactions(
       address: string,
