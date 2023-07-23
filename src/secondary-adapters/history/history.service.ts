@@ -112,6 +112,9 @@ export class HistoryService {
 
   async fetchTransactionsWithRetry(chainID, address, limit, retry?: number): Promise<Transaction[]> {
     try {
+      if (retry > 2) {
+        return [];
+      }
       const result = await this.getChainTransactions(address, chainID, limit);
       if (result && result.items) {
         return result.items;
@@ -119,6 +122,9 @@ export class HistoryService {
     } catch (error) {
       if (retry === undefined) {
         retry = 1;
+      }
+      if (retry > 2) {
+        return [];
       }
       retry++
       await this.fetchTransactionsWithRetry(chainID, address, limit, retry)
