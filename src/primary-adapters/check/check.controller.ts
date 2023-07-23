@@ -9,7 +9,9 @@ import * as process from "process";
 
 @Controller()
 export class CheckController {
-  private cache = new NodeCache()
+  private cache = new NodeCache({
+    maxKeys: 1000,
+  })
   private redis = new Redis(process.env.redis_url);
 
   constructor(
@@ -66,15 +68,18 @@ export class CheckController {
         oldEnough: historyStuff ? historyStuff.oldEnough : null,
       }
 
-      this.cache.set(id, data, 60 * 5)
+      if (historyStuff && poapInfo && profile) {
+        this.cache.set(id, data, 60 * 5)
 
-      try {
+        try {
+          await this.redis.set(id, JSON.stringify(data), 'EX', 60 * 5);
+        } catch (e) {
+          console.log('redis error', e)
+        }
+
         await this.redis.set(id, JSON.stringify(data), 'EX', 60 * 5);
-      } catch (e) {
-        console.log('redis error', e)
       }
 
-      await this.redis.set(id, JSON.stringify(data), 'EX', 60 * 5);
 
       console.log('return new', id)
       console.log('------------------------------------')
