@@ -11,44 +11,11 @@ export class HistoryService {
   ) {
   }
 
-  // async getLastHistoryEvents(address: string): Promise<TransactionData | null> {
-  //   try {
-  //     const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
-  //     const promises = chains.map(async (chainID) => {
-  //       const data = await this.httpService.axiosRef.get<TransactionList>(`${process.env.transaction_history_url}/${chainID}/${address}?limit=1000`)
-  //       const txs = data.data.items;
-  //       return {items: txs, chainID: chainID} as TransactionListWithChainID;
-  //     });
-  //     const data = await Promise.all(promises);
-  //
-  //     const latestOutboundTransaction = findLatestOutboundTransaction(data);
-  //     const totalTransactionHappenedOverLast7DaysTotal = calculateTotalTransactionsLast7Days(data);
-  //     const totalTransactionsLast7DaysFromOwner = calculateTotalTransactionsLast7DaysFromOwner(data);
-  //     const chainIDsWithActivity = findChainIDsWithTransactions(data);
-  //     const hasNotDumbTransaction = hasAuthorizeTransaction(data);
-  //     return {
-  //       latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
-  //       totalTransactionHappenedOverLast7DaysTotal,
-  //       totalTransactionsLast7DaysFromOwner,
-  //       chainIDsWithActivity,
-  //       hasNotDumbTransaction,
-  //     }
-  //   } catch (error) {
-  //     console.error('HISTORY',error)
-  //     return null;
-  //   }
-  //
-  // }
-
   async getLastHistoryEvents(address: string): Promise<TransactionData | null> {
     try {
       const chains = [1, 56, 137, 100, 250, 10, 42161, 43114];
-      const limit = 5000;
+      const limit = 300;
 
-      // const promises = chains.map(chainID => this.fetchTransactions(chainID, address, limit));
-      // const allTransactions = await Promise.all(promises);
-      //
-      // const data = chains.map((chainID, index) => ({items: allTransactions[index], chainID: chainID}));
 
       const promises = []
       chains.forEach(chainID => {
@@ -79,7 +46,6 @@ export class HistoryService {
           }
         })
       }
-
       return {
         latestOutboundTransactionDate: latestOutboundTransaction ? new Date(latestOutboundTransaction.mined_at * 1000) : null,
         totalTransactionHappenedOverLast7DaysTotal,
@@ -101,13 +67,21 @@ export class HistoryService {
       chainID: number,
       limit: number,
   ): Promise<any> {
-    const response = await this.httpService.axiosRef.get<TransactionList>(
-        `${process.env.transaction_history_url}/${chainID}/${address}?limit=${limit}`
-    );
+    try {
+      const url = `${process.env.transaction_history_url}/${chainID}/${address}?limit=${limit}`
+      const response = await this.httpService.axiosRef.get<TransactionList>(
+          url
+      );
 
-    const txs = response.data.items;
-    const oldestBlockNumber = txs.length > 0 ? txs[txs.length - 1].block_number : undefined;
-    return {items: txs, chainID: chainID, oldestBlockNumber: oldestBlockNumber};
+      const txs = response.data.items;
+      const oldestBlockNumber = txs.length > 0 ? txs[txs.length - 1].block_number : undefined;
+      return {items: txs, chainID: chainID, oldestBlockNumber: oldestBlockNumber};
+    } catch (e) {
+
+      console.log(e)
+      return null
+    }
+
   }
 
   async fetchTransactionsWithRetry(chainID, address, limit, retry?: number): Promise<Transaction[]> {
